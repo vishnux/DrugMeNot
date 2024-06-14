@@ -40,7 +40,6 @@ def fetch_data(limit=100):
     return df
 
 def extract_numeric_value(value):
-    # Extract numeric value from string, handling mixed formats like '10 MG, UNK'
     if pd.isna(value):
         return np.nan
     
