@@ -39,20 +39,20 @@ def fetch_data(limit=100):
     df = pd.DataFrame(records)
     return df
 
-def extract_dose(dose_str):
-    if pd.isna(dose_str):
+def extract_numeric_value(value):
+    # Extract numeric value from string, handling mixed formats like '10 MG, UNK'
+    if pd.isna(value):
         return np.nan
     
-    # Regular expression to find the first sequence of digits or decimals in the string
-    match = re.search(r'\d+(\.\d+)?', str(dose_str))
-    
-    if match:
-        try:
+    try:
+        # Use regular expression to find the first sequence of digits or decimals in the string
+        match = re.search(r'\d+(\.\d+)?', str(value))
+        if match:
             return float(match.group())
-        except ValueError:
-            return np.nan  # Return NaN if conversion to float fails
-    else:
-        return np.nan  # Return NaN if no numeric value found
+        else:
+            return np.nan
+    except ValueError:
+        return np.nan
 
 def preprocess_data(df):
     # Ensure the outcome column is included
@@ -65,8 +65,8 @@ def preprocess_data(df):
     # Convert 'sex' column to binary (1 for male, 0 for female)
     df['sex'] = df['sex'].apply(lambda x: 1 if x == '1' else 0)
     
-    # Extract numerical values from 'dose' column
-    df['dose'] = df['dose'].apply(lambda x: extract_dose(x))
+    # Extract numerical values from 'dose' column using custom function
+    df['dose'] = df['dose'].apply(extract_numeric_value)
     
     # Convert 'duration' to numeric (if it is a date string, we need to convert it to duration in days or similar)
     # Assuming 'duration' is a date string in the format 'YYYYMMDD'
