@@ -61,7 +61,7 @@ def preprocess_data(df):
     X = df.drop(columns=['outcome'])
     y = df['outcome']
     
-    # Create a column transformer
+    # Create a column transformer with separate transformers
     num_features = ['age', 'dose', 'duration']
     cat_features = ['drug', 'indication', 'route']
     
@@ -75,14 +75,14 @@ def preprocess_data(df):
         ], remainder='passthrough'
     )
     
-    # Fit and transform data
-    X = preprocessor.fit_transform(X)
+    # Fit on training data and transform both training and testing data
+    X_transformed = preprocessor.fit_transform(X)
     
     # Handle missing values
     imputer = SimpleImputer(strategy='median')
-    X = imputer.fit_transform(X)
+    X_transformed = imputer.fit_transform(X_transformed)
     
-    return X, y, preprocessor, imputer
+    return X_transformed, y, preprocessor, imputer
 
 def extract_dose(dose_str):
     if pd.isna(dose_str):
@@ -111,7 +111,11 @@ def main():
         logging.info(f"{datetime.now()}: Training data preprocessing complete. Number of features: {X_train.shape[1]}")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
-        X_test, y_test, _, _ = preprocess_data(test_data)
+        # Only transform testing data using preprocessor fitted on training data
+        X_test = preprocessor.transform(test_data.drop(columns=['outcome']))
+        X_test = imputer.transform(X_test)
+        y_test = test_data['outcome']
+        
         logging.info(f"{datetime.now()}: Testing data preprocessing complete. Number of features: {X_test.shape[1]}")
 
         # Ensure that both X_train and X_test have the same shape
