@@ -1,4 +1,4 @@
-# drug_adverse_event_model.py
+# drug_adverse_event_model_colab.py
 
 import requests
 import pandas as pd
@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, classification_report
 import logging
 from datetime import datetime
 
-# Setup logging
+# Setup logging to a file named drug_adverse_event_model.log
 logging.basicConfig(filename='drug_adverse_event_model.log', level=logging.INFO)
 
 def fetch_data(limit=100):
