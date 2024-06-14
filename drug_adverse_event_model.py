@@ -31,6 +31,10 @@ def fetch_data(limit=100):
     return df
 
 def preprocess_data(df):
+    # Ensure the outcome column is included
+    if 'outcome' not in df.columns:
+        raise ValueError("DataFrame must include 'outcome' column")
+    
     # Convert 'age' column to numeric, handling errors with 'coerce'
     df['age'] = pd.to_numeric(df['age'], errors='coerce')
     
@@ -55,11 +59,14 @@ def main():
         data = fetch_data()
         logging.info(f"{datetime.now()}: Data fetched successfully.")
 
+        # Ensure 'outcome' column is in the dataframe
+        if 'outcome' not in data.columns:
+            logging.error(f"{datetime.now()}: 'outcome' column is missing from data")
+            return
+
         # Perform train-test split
-        X_train, X_test, y_train, y_test = train_test_split(data[['age', 'sex', 'serious']], 
-                                                            data['outcome'], 
-                                                            test_size=0.3, 
-                                                            random_state=42)
+        logging.info(f"{datetime.now()}: Splitting data into train and test sets...")
+        X_train, X_test, y_train, y_test = train_test_split(data, data['outcome'], test_size=0.3, random_state=42)
 
         logging.info(f"{datetime.now()}: Preprocessing training data...")
         X_train_processed, y_train_processed = preprocess_data(X_train)
