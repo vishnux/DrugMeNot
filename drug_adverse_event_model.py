@@ -18,11 +18,15 @@ def fetch_data(limit=100):
     # Extract relevant data
     records = []
     for event in events:
+        drug_info = event['patient']['drug'][0]
         record = {
-            'drug': event['patient']['drug'][0]['medicinalproduct'],
+            'drug': drug_info['medicinalproduct'],
             'age': event['patient'].get('patientonsetage', None),
             'sex': event['patient'].get('patientsex', None),
-            'serious': event.get('serious', None),  # General serious field
+            'dose': drug_info.get('drugdosagetext', None),  # Assuming dose information is in the 'drugdosagetext' field
+            'indication': drug_info.get('drugindication', None),
+            'route': drug_info.get('drugadministrationroute', None),
+            'duration': event.get('drugstartdate', None),  # Assuming duration information is in the 'drugstartdate' field
             'outcome': 1 if event.get('serious', '0') == '1' else 0  # 1 if serious, else 0
         }
         records.append(record)
@@ -42,16 +46,22 @@ def preprocess_data(df):
     median_age = df['age'].median()
     df['age'].fillna(median_age, inplace=True)
     
-    # Convert 'serious' column to numeric, handling errors with 'coerce'
-    df['serious'] = pd.to_numeric(df['serious'], errors='coerce')
-    
-    # Fill NaN values with 0 (or appropriate handling based on your data)
-    df['serious'].fillna(0, inplace=True)
-    
-    # Convert 'sex' column to binary (if needed)
+    # Convert 'sex' column to binary (1 for male, 0 for female)
     df['sex'] = df['sex'].apply(lambda x: 1 if x == '1' else 0)
     
-    return df[['age', 'sex', 'serious']], df['outcome']
+    # Handle categorical features using one-hot encoding
+    df = pd.get_dummies(df, columns=['drug', 'indication', 'route'], drop_first=True)
+    
+    # Convert 'duration' to numeric (if it is a date string, we need to convert it to duration in days or similar)
+    # Assuming 'duration' is a date string in the format 'YYYYMMDD'
+    df['duration'] = pd.to_datetime(df['duration'], format='%Y%m%d', errors='coerce')
+    df['duration'] = (datetime.now() - df['duration']).dt.days
+    
+    # Fill NaN values in 'duration' with median duration
+    median_duration = df['duration'].median()
+    df['duration'].fillna(median_duration, inplace=True)
+    
+    return df.drop(columns=['outcome']), df['outcome']
 
 def main():
     try:
