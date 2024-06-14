@@ -101,11 +101,11 @@ def main():
 
         logging.info(f"{datetime.now()}: Preprocessing training data...")
         X_train, y_train, column_transformer, imputer = preprocess_data(train_data)
-        logging.info(f"{datetime.now()}: Training data preprocessing complete.")
+        logging.info(f"{datetime.now()}: Training data preprocessing complete. Number of features: {X_train.shape[1]}")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
         X_test, y_test, _, _ = preprocess_data(test_data)
-        logging.info(f"{datetime.now()}: Testing data preprocessing complete.")
+        logging.info(f"{datetime.now()}: Testing data preprocessing complete. Number of features: {X_test.shape[1]}")
 
         # Ensure that both X_train and X_test have the same shape
         assert X_train.shape[1] == X_test.shape[1], \
