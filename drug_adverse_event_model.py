@@ -38,7 +38,7 @@ def fetch_data(limit=100):
     df = pd.DataFrame(records)
     return df
 
-def preprocess_data(df, column_transformer=None):
+def preprocess_data(df):
     # Ensure the outcome column is included
     if 'outcome' not in df.columns:
         raise ValueError("DataFrame must include 'outcome' column")
@@ -61,19 +61,19 @@ def preprocess_data(df, column_transformer=None):
     X = df.drop(columns=['outcome'])
     y = df['outcome']
     
-    # Apply column transformer
-    if column_transformer is None:
-        column_transformer = ColumnTransformer(
-            transformers=[
-                ('num', StandardScaler(), ['age', 'dose', 'duration']),
-                ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
-            ])
-        imputer = SimpleImputer(strategy='median')
-        X = column_transformer.fit_transform(X)
-        X = imputer.fit_transform(X)
-    else:
-        X = column_transformer.transform(X)
-        X = imputer.transform(X)
+    # Create a column transformer
+    column_transformer = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), ['age', 'dose', 'duration']),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
+        ])
+    
+    # Apply preprocessing pipeline
+    X = column_transformer.fit_transform(X)
+    
+    # Handle missing values
+    imputer = SimpleImputer(strategy='median')
+    X = imputer.fit_transform(X)
     
     return X, y, column_transformer, imputer
 
@@ -104,7 +104,7 @@ def main():
         logging.info(f"{datetime.now()}: Training data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
-        X_test, y_test, _, _ = preprocess_data(test_data, column_transformer, imputer)
+        X_test, y_test, _, _ = preprocess_data(test_data)
         logging.info(f"{datetime.now()}: Testing data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Training model...")
