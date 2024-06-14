@@ -91,7 +91,7 @@ def preprocess_data(df):
         ], remainder='passthrough'
     )
     
-    # Fit on training data and transform both training and testing data
+    # Fit on all data and transform
     X_transformed = preprocessor.fit_transform(X)
     
     # Handle missing values
@@ -115,17 +115,13 @@ def main():
         logging.info(f"{datetime.now()}: Splitting data into train and test sets...")
         train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
-        logging.info(f"{datetime.now()}: Preprocessing training data...")
+        logging.info(f"{datetime.now()}: Preprocessing data...")
         X_train, y_train, preprocessor, imputer = preprocess_data(train_data)
-        logging.info(f"{datetime.now()}: Training data preprocessing complete. Number of features: {X_train.shape[1]}")
-
-        logging.info(f"{datetime.now()}: Preprocessing testing data...")
-        # Only transform testing data using preprocessor fitted on training data
         X_test = preprocessor.transform(test_data.drop(columns=['outcome']))
         X_test = imputer.transform(X_test)
         y_test = test_data['outcome']
         
-        logging.info(f"{datetime.now()}: Testing data preprocessing complete. Number of features: {X_test.shape[1]}")
+        logging.info(f"{datetime.now()}: Data preprocessing complete. Number of features: {X_train.shape[1]}")
 
         # Ensure that both X_train and X_test have the same shape
         assert X_train.shape[1] == X_test.shape[1], \
