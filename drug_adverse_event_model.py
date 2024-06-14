@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 import logging
 from datetime import datetime
+import re
 
 # Configure logging to write to a file
 logging.basicConfig(filename='drug_adverse_event_model.log', level=logging.INFO)
@@ -49,6 +50,9 @@ def preprocess_data(df):
     # Convert 'sex' column to binary (1 for male, 0 for female)
     df['sex'] = df['sex'].apply(lambda x: 1 if x == '1' else 0)
     
+    # Extract numerical values from 'dose' column
+    df['dose'] = df['dose'].apply(lambda x: extract_dose(x))
+    
     # Handle categorical features using one-hot encoding
     df = pd.get_dummies(df, columns=['drug', 'indication', 'route'], drop_first=True)
     
@@ -62,6 +66,13 @@ def preprocess_data(df):
     df['duration'].fillna(median_duration, inplace=True)
     
     return df.drop(columns=['outcome']), df['outcome']
+
+def extract_dose(dose_str):
+    if pd.isna(dose_str):
+        return 0
+    # Extract the first number found in the string
+    dose = re.findall(r'\d+', dose_str)
+    return float(dose[0]) if dose else 0
 
 def main():
     try:
