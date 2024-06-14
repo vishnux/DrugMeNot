@@ -24,7 +24,7 @@ jobs:
 
     - name: Run Drug Adverse Event model script
       run: |
-        python drug_adverse_event_model_colab.py
+        python drug_adverse_event_model.py
 
     - name: Upload log file
       uses: actions/upload-artifact@v2
