@@ -3,6 +3,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import logging
 from datetime import datetime
 import re
@@ -35,7 +37,7 @@ def fetch_data(limit=100):
     df = pd.DataFrame(records)
     return df
 
-def preprocess_data(df):
+def preprocess_data(df, column_transformer=None):
     # Ensure the outcome column is included
     if 'outcome' not in df.columns:
         raise ValueError("DataFrame must include 'outcome' column")
@@ -53,9 +55,6 @@ def preprocess_data(df):
     # Extract numerical values from 'dose' column
     df['dose'] = df['dose'].apply(lambda x: extract_dose(x))
     
-    # Handle categorical features using one-hot encoding
-    df = pd.get_dummies(df, columns=['drug', 'indication', 'route'], drop_first=True)
-    
     # Convert 'duration' to numeric (if it is a date string, we need to convert it to duration in days or similar)
     # Assuming 'duration' is a date string in the format 'YYYYMMDD'
     df['duration'] = pd.to_datetime(df['duration'], format='%Y%m%d', errors='coerce')
@@ -65,7 +64,22 @@ def preprocess_data(df):
     median_duration = df['duration'].median()
     df['duration'].fillna(median_duration, inplace=True)
     
-    return df.drop(columns=['outcome']), df['outcome']
+    # Separate features and target
+    X = df.drop(columns=['outcome'])
+    y = df['outcome']
+    
+    # Apply column transformer
+    if column_transformer is None:
+        column_transformer = ColumnTransformer(
+            transformers=[
+                ('num', StandardScaler(), ['age', 'dose', 'duration']),
+                ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
+            ])
+        X = column_transformer.fit_transform(X)
+    else:
+        X = column_transformer.transform(X)
+    
+    return X, y, column_transformer
 
 def extract_dose(dose_str):
     if pd.isna(dose_str):
@@ -87,25 +101,25 @@ def main():
 
         # Perform train-test split
         logging.info(f"{datetime.now()}: Splitting data into train and test sets...")
-        X_train, X_test, y_train, y_test = train_test_split(data, data['outcome'], test_size=0.3, random_state=42)
+        train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
         logging.info(f"{datetime.now()}: Preprocessing training data...")
-        X_train_processed, y_train_processed = preprocess_data(X_train)
+        X_train, y_train, column_transformer = preprocess_data(train_data)
         logging.info(f"{datetime.now()}: Training data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
-        X_test_processed, y_test_processed = preprocess_data(X_test)
+        X_test, y_test, _ = preprocess_data(test_data, column_transformer)
         logging.info(f"{datetime.now()}: Testing data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Training model...")
         model = RandomForestClassifier()
-        model.fit(X_train_processed, y_train_processed)
+        model.fit(X_train, y_train)
         
         # Predict on test set
-        predictions = model.predict(X_test_processed)
+        predictions = model.predict(X_test)
         
-        accuracy = accuracy_score(y_test_processed, predictions)
-        report = classification_report(y_test_processed, predictions)
+        accuracy = accuracy_score(y_test, predictions)
+        report = classification_report(y_test, predictions)
         logging.info(f"{datetime.now()}: Model trained with accuracy = {accuracy}")
         logging.info(f"Classification Report:\n{report}")
 
