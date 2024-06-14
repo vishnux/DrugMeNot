@@ -20,36 +20,23 @@ adverse_events_data = requests.get(adverse_events_url).json()
 drug_labeling_df = pd.DataFrame(drug_labeling_data["results"])
 adverse_events_df = pd.DataFrame(adverse_events_data["results"])
 
-# Check for common columns to merge on
-common_columns = set(drug_labeling_df.columns).intersection(set(adverse_events_df.columns))
-merge_on_column = None
-for col in ["product_ndc", "product_code"]:
-    if col in common_columns:
-        merge_on_column = col
-        break
-
-if merge_on_column is None:
-    raise ValueError("No common columns found to merge the dataframes.")
-
-# Filter and join relevant data
-relevant_data = pd.merge(drug_labeling_df, adverse_events_df, on=merge_on_column, how="inner")
-
-# Data cleaning
-# Handle missing values
-relevant_data = relevant_data.dropna(subset=["patient_age", "patient_sex", "drug_composition", "drug_indication", "adverse_event_type"])
-
-# Feature engineering
-# Encode categorical variables
-label_encoder = LabelEncoder()
-relevant_data["patient_sex"] = label_encoder.fit_transform(relevant_data["patient_sex"])
-
+# Data cleaning and feature engineering for drug labeling data
+drug_labeling_df = drug_labeling_df.dropna(subset=["drug_composition", "drug_indication"])
 onehot_encoder = OneHotEncoder(sparse=False)
-drug_compositions = onehot_encoder.fit_transform(relevant_data[["drug_composition"]])
-drug_indications = onehot_encoder.fit_transform(relevant_data[["drug_indication"]])
+drug_compositions = onehot_encoder.fit_transform(drug_labeling_df[["drug_composition"]])
+drug_indications = onehot_encoder.fit_transform(drug_labeling_df[["drug_indication"]])
+X_labeling = np.concatenate([drug_compositions, drug_indications], axis=1)
 
-# Combine features
-X = np.concatenate([relevant_data[["patient_age"]].values, relevant_data[["patient_sex"]].values, drug_compositions, drug_indications], axis=1)
-y = relevant_data["adverse_event_type"]
+# Data cleaning and feature engineering for adverse events data
+adverse_events_df = adverse_events_df.dropna(subset=["patient_age", "patient_sex", "adverse_event_type"])
+label_encoder = LabelEncoder()
+adverse_events_df["patient_sex"] = label_encoder.fit_transform(adverse_events_df["patient_sex"])
+X_events = adverse_events_df[["patient_age", "patient_sex"]].values
+y_events = adverse_events_df["adverse_event_type"]
+
+# Combine features from both datasets
+X = np.concatenate([X_labeling, X_events], axis=1)
+y = y_events
 
 # Step 3: Model Training
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
