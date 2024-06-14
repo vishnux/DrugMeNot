@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
 import logging
 from datetime import datetime
 import re
@@ -45,10 +46,6 @@ def preprocess_data(df, column_transformer=None):
     # Convert 'age' column to numeric, handling errors with 'coerce'
     df['age'] = pd.to_numeric(df['age'], errors='coerce')
     
-    # Fill NaN values with median age
-    median_age = df['age'].median()
-    df['age'].fillna(median_age, inplace=True)
-    
     # Convert 'sex' column to binary (1 for male, 0 for female)
     df['sex'] = df['sex'].apply(lambda x: 1 if x == '1' else 0)
     
@@ -59,10 +56,6 @@ def preprocess_data(df, column_transformer=None):
     # Assuming 'duration' is a date string in the format 'YYYYMMDD'
     df['duration'] = pd.to_datetime(df['duration'], format='%Y%m%d', errors='coerce')
     df['duration'] = (datetime.now() - df['duration']).dt.days
-    
-    # Fill NaN values in 'duration' with median duration
-    median_duration = df['duration'].median()
-    df['duration'].fillna(median_duration, inplace=True)
     
     # Separate features and target
     X = df.drop(columns=['outcome'])
@@ -75,9 +68,13 @@ def preprocess_data(df, column_transformer=None):
                 ('num', StandardScaler(), ['age', 'dose', 'duration']),
                 ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
             ])
+        imputer = SimpleImputer(strategy='median')
         X = column_transformer.fit_transform(X)
+        X = imputer.fit_transform(X)
     else:
+        imputer = SimpleImputer(strategy='median')
         X = column_transformer.transform(X)
+        X = imputer.transform(X)
     
     return X, y, column_transformer
 
