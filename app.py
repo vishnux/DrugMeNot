@@ -20,8 +20,19 @@ adverse_events_data = requests.get(adverse_events_url).json()
 drug_labeling_df = pd.DataFrame(drug_labeling_data["results"])
 adverse_events_df = pd.DataFrame(adverse_events_data["results"])
 
+# Check for common columns to merge on
+common_columns = set(drug_labeling_df.columns).intersection(set(adverse_events_df.columns))
+merge_on_column = None
+for col in ["product_ndc", "product_code"]:
+    if col in common_columns:
+        merge_on_column = col
+        break
+
+if merge_on_column is None:
+    raise ValueError("No common columns found to merge the dataframes.")
+
 # Filter and join relevant data
-relevant_data = pd.merge(drug_labeling_df, adverse_events_df, on="product_ndc", how="inner")
+relevant_data = pd.merge(drug_labeling_df, adverse_events_df, on=merge_on_column, how="inner")
 
 # Data cleaning
 # Handle missing values
