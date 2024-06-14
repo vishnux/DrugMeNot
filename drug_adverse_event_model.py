@@ -62,20 +62,27 @@ def preprocess_data(df):
     y = df['outcome']
     
     # Create a column transformer
-    column_transformer = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), ['age', 'dose', 'duration']),
-            ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
-        ], remainder='passthrough')  # Remainder set to 'passthrough' to include all columns not specified
+    num_features = ['age', 'dose', 'duration']
+    cat_features = ['drug', 'indication', 'route']
     
-    # Apply column transformer
-    X = column_transformer.fit_transform(X)
+    numeric_transformer = StandardScaler()
+    categorical_transformer = OneHotEncoder(handle_unknown='ignore')
+    
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, num_features),
+            ('cat', categorical_transformer, cat_features)
+        ], remainder='passthrough'
+    )
+    
+    # Fit and transform data
+    X = preprocessor.fit_transform(X)
     
     # Handle missing values
     imputer = SimpleImputer(strategy='median')
     X = imputer.fit_transform(X)
     
-    return X, y, column_transformer, imputer
+    return X, y, preprocessor, imputer
 
 def extract_dose(dose_str):
     if pd.isna(dose_str):
@@ -100,7 +107,7 @@ def main():
         train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
         logging.info(f"{datetime.now()}: Preprocessing training data...")
-        X_train, y_train, column_transformer, imputer = preprocess_data(train_data)
+        X_train, y_train, preprocessor, imputer = preprocess_data(train_data)
         logging.info(f"{datetime.now()}: Training data preprocessing complete. Number of features: {X_train.shape[1]}")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
