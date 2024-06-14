@@ -1,5 +1,3 @@
-# drug_adverse_event_model.py
-
 import requests
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -8,7 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report
 import logging
 from datetime import datetime
 
-# Setup logging
+# Configure logging to write to a file
 logging.basicConfig(filename='drug_adverse_event_model.log', level=logging.INFO)
 
 def fetch_data(limit=100):
@@ -33,29 +31,56 @@ def fetch_data(limit=100):
     return df
 
 def preprocess_data(df):
+    # Convert 'age' column to numeric, handling errors with 'coerce'
+    df['age'] = pd.to_numeric(df['age'], errors='coerce')
+    
+    # Fill NaN values with median age
+    median_age = df['age'].median()
+    df['age'].fillna(median_age, inplace=True)
+    
+    # Convert 'serious' column to numeric, handling errors with 'coerce'
+    df['serious'] = pd.to_numeric(df['serious'], errors='coerce')
+    
+    # Fill NaN values with 0 (or appropriate handling based on your data)
+    df['serious'].fillna(0, inplace=True)
+    
+    # Convert 'sex' column to binary (if needed)
     df['sex'] = df['sex'].apply(lambda x: 1 if x == '1' else 0)
-    df['age'] = pd.to_numeric(df['age'], errors='coerce').fillna(df['age'].median())
-    df['serious'] = pd.to_numeric(df['serious'], errors='coerce').fillna(0)
+    
     return df[['age', 'sex', 'serious']], df['outcome']
-
-def train_model(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-    
-    model = RandomForestClassifier()
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
-    
-    accuracy = accuracy_score(y_test, predictions)
-    report = classification_report(y_test, predictions)
-    return accuracy, report
 
 def main():
     try:
+        logging.info(f"{datetime.now()}: Starting data fetch...")
         data = fetch_data()
-        X, y = preprocess_data(data)
-        accuracy, report = train_model(X, y)
+        logging.info(f"{datetime.now()}: Data fetched successfully.")
+
+        # Perform train-test split
+        X_train, X_test, y_train, y_test = train_test_split(data[['age', 'sex', 'serious']], 
+                                                            data['outcome'], 
+                                                            test_size=0.3, 
+                                                            random_state=42)
+
+        logging.info(f"{datetime.now()}: Preprocessing training data...")
+        X_train_processed, y_train_processed = preprocess_data(X_train)
+        logging.info(f"{datetime.now()}: Training data preprocessing complete.")
+
+        logging.info(f"{datetime.now()}: Preprocessing testing data...")
+        X_test_processed, y_test_processed = preprocess_data(X_test)
+        logging.info(f"{datetime.now()}: Testing data preprocessing complete.")
+
+        logging.info(f"{datetime.now()}: Training model...")
+        model = RandomForestClassifier()
+        model.fit(X_train_processed, y_train_processed)
+        
+        # Predict on test set
+        predictions = model.predict(X_test_processed)
+        
+        accuracy = accuracy_score(y_test_processed, predictions)
+        report = classification_report(y_test_processed, predictions)
         logging.info(f"{datetime.now()}: Model trained with accuracy = {accuracy}")
         logging.info(f"Classification Report:\n{report}")
+
     except Exception as e:
         logging.error(f"{datetime.now()}: Error occurred - {e}")
 
