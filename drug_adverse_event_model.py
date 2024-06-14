@@ -38,7 +38,7 @@ def fetch_data(limit=100):
     df = pd.DataFrame(records)
     return df
 
-def preprocess_data(df, column_transformer=None):
+def preprocess_data(df):
     # Ensure the outcome column is included
     if 'outcome' not in df.columns:
         raise ValueError("DataFrame must include 'outcome' column")
@@ -61,13 +61,12 @@ def preprocess_data(df, column_transformer=None):
     X = df.drop(columns=['outcome'])
     y = df['outcome']
     
-    # Create a column transformer if not provided
-    if column_transformer is None:
-        column_transformer = ColumnTransformer(
-            transformers=[
-                ('num', StandardScaler(), ['age', 'dose', 'duration']),
-                ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
-            ], remainder='drop')  # drop any remaining columns not specified
+    # Create a column transformer
+    column_transformer = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), ['age', 'dose', 'duration']),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
+        ], remainder='drop')  # drop any remaining columns not specified
     
     # Apply column transformer
     X = column_transformer.fit_transform(X)
@@ -105,8 +104,12 @@ def main():
         logging.info(f"{datetime.now()}: Training data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
-        X_test, y_test, _, _ = preprocess_data(test_data, column_transformer)
+        X_test, y_test, _, _ = preprocess_data(test_data)
         logging.info(f"{datetime.now()}: Testing data preprocessing complete.")
+
+        # Ensure that both X_train and X_test have the same shape
+        assert X_train.shape[1] == X_test.shape[1], \
+            f"Training and testing data have different number of features: {X_train.shape[1]} vs {X_test.shape[1]}"
 
         logging.info(f"{datetime.now()}: Training model...")
         model = RandomForestClassifier()
