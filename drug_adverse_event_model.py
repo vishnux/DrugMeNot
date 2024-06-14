@@ -66,7 +66,7 @@ def preprocess_data(df):
         transformers=[
             ('num', StandardScaler(), ['age', 'dose', 'duration']),
             ('cat', OneHotEncoder(handle_unknown='ignore'), ['drug', 'indication', 'route'])
-        ], remainder='drop')  # drop any remaining columns not specified
+        ], remainder='passthrough')  # Remainder set to 'passthrough' to include all columns not specified
     
     # Apply column transformer
     X = column_transformer.fit_transform(X)
