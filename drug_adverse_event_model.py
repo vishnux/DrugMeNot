@@ -87,9 +87,12 @@ def preprocess_data(df):
 def extract_dose(dose_str):
     if pd.isna(dose_str):
         return 0
-    # Extract the first number found in the string
-    dose = re.findall(r'\d+', str(dose_str))
-    return float(dose[0]) if dose else 0
+    # Extract numeric value from the string
+    try:
+        dose = re.search(r'\d+', str(dose_str)).group()
+        return float(dose)
+    except AttributeError:
+        return 0
 
 def main():
     try:
