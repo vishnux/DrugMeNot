@@ -88,7 +88,7 @@ def extract_dose(dose_str):
     if pd.isna(dose_str):
         return 0
     # Extract the first number found in the string
-    dose = re.findall(r'\d+', dose_str)
+    dose = re.findall(r'\d+', str(dose_str))
     return float(dose[0]) if dose else 0
 
 def main():
