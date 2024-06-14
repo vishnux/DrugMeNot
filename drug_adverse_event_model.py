@@ -72,11 +72,10 @@ def preprocess_data(df, column_transformer=None):
         X = column_transformer.fit_transform(X)
         X = imputer.fit_transform(X)
     else:
-        imputer = SimpleImputer(strategy='median')
         X = column_transformer.transform(X)
         X = imputer.transform(X)
     
-    return X, y, column_transformer
+    return X, y, column_transformer, imputer
 
 def extract_dose(dose_str):
     if pd.isna(dose_str):
@@ -101,11 +100,11 @@ def main():
         train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
         logging.info(f"{datetime.now()}: Preprocessing training data...")
-        X_train, y_train, column_transformer = preprocess_data(train_data)
+        X_train, y_train, column_transformer, imputer = preprocess_data(train_data)
         logging.info(f"{datetime.now()}: Training data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Preprocessing testing data...")
-        X_test, y_test, _ = preprocess_data(test_data, column_transformer)
+        X_test, y_test, _, _ = preprocess_data(test_data, column_transformer, imputer)
         logging.info(f"{datetime.now()}: Testing data preprocessing complete.")
 
         logging.info(f"{datetime.now()}: Training model...")
