@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '*/5 * * * *'y
+    - cron: '*/5 * * * *'
 
 jobs:
   run-python-script:
