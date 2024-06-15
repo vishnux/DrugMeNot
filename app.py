@@ -22,7 +22,7 @@ def fetch_data(url, limit=100):
         logging.error(f"Error fetching data: {e}")
         return None
 
-adverse_events_url = "https://api.fda.gov/drug/event.json"#?api_key=8DcjSRvomd4ddOi4zRzVKqX4StK5TUv3cIl0v7OB
+adverse_events_url = "https://api.fda.gov/drug/event.json"
 adverse_events_data = fetch_data(adverse_events_url)
 
 if not adverse_events_data:
@@ -73,7 +73,7 @@ adverse_events_df = preprocess_data(adverse_events_data)
 # Prepare features and labels
 def prepare_features(df):
     try:
-        onehot_encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
+        onehot_encoder = OneHotEncoder(handle_unknown='ignore')  # Remove 'sparse=False'
 
         # Handle drug_composition
         df['drug_composition_str'] = df['drug_composition'].apply(lambda x: ','.join(x))
@@ -84,8 +84,8 @@ def prepare_features(df):
 
         # Combine features into a single array
         X = np.hstack([
-            compositions_encoded,
-            indications_encoded,
+            compositions_encoded.toarray(),  # Convert sparse matrix to dense array
+            indications_encoded.toarray(),  # Convert sparse matrix to dense array
             df[["patientonsetage", "patientsex"]].values
         ])
 
