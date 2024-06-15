@@ -1,8 +1,11 @@
 name: Adverse Event Model Training
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '0 0 * * *'  # Runs at midnight every day (UTC time)
+    - cron: '*/5 * * * *'
 
 jobs:
   build:
