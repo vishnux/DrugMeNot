@@ -27,7 +27,7 @@ jobs:
 
     - name: Run Python script
       run: |
-        python app.py  # Execute your Python script (assuming it's at the root level)
+        python drug_adverse_event_model.py  # Execute your Python script (assuming it's at the root level)
 
     - name: Save log file to artifacts
       if: success()  # Save artifacts only if the script runs successfully
