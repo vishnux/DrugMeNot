@@ -26,7 +26,7 @@ jobs:
           pip install -r requirements.txt  # If you have any additional requirements
 
       - name: Execute Python script
-        run: python path/to/your/script.py  # Replace with the path to your Python script
+        run: python app.py  # Replace with the path to your Python script
 
       - name: Move log file to log folder
         run: |
