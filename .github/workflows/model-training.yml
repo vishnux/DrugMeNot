@@ -1,37 +1,43 @@
-name: Adverse Event Model Training
+name: Model Training Workflow
 
 on:
+  schedule:
+    - cron: '0 0 * * *'  # Example: Run daily at midnight
   push:
     branches:
       - main
-  schedule:
-    - cron: '*/5 * * * *'
+      - master
 
 jobs:
-  build:
+  train_model:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.11'  # Replace with your desired Python version (e.g., '3.7')
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Replace with your Python version
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt  # Replace with your requirements installation command if needed
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Adjust as per your requirements
 
-    - name: Run Python script
-      run: |
-        python app.py  # Execute your Python script (assuming it's at the root level)
+      - name: Run script
+        run: python app.py
 
-    - name: Save log file to artifacts
-      if: success()  # Save artifacts only if the script runs successfully
-      uses: actions/upload-artifact@v2
-      with:
-        name: logs
-        path: adverse_event_model.log  # Adjust the path to match where your log file is saved
+      - name: Move log file to 'log' folder
+        if: success()  # Only execute this step if the previous steps were successful
+        run: |
+          mkdir -p log  # Create 'log' folder if it doesn't exist
+          mv adverse_event_model.log log/  # Move log file to 'log' folder
+
+      - name: Save log file as artifact
+        if: success()  # Save artifacts only if the script runs successfully
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs
+          path: log/adverse_event_model.log  # Adjust the path to match where your log file is moved
