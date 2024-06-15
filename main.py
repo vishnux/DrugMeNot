@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Query
 import pickle
 import numpy as np
+from sklearn.preprocessing import OneHotEncoder
 
 # Load the trained model
 model_path = "models/RandomForest_model.pkl"
@@ -24,9 +25,9 @@ def predict_adverse_event(
         drug_indication_list = drug_indication.split(',')
 
         # One-hot encode drug compositions and indications
-        onehot_encoder = model.named_steps['onehotencoder']
-        compositions_encoded = onehot_encoder.transform([[','.join(drug_composition_list)]])
-        indications_encoded = onehot_encoder.transform([[','.join(drug_indication_list)]])
+        onehot_encoder = OneHotEncoder(handle_unknown='ignore')
+        compositions_encoded = onehot_encoder.fit_transform([[','.join(drug_composition_list)]])
+        indications_encoded = onehot_encoder.fit_transform([[','.join(drug_indication_list)]])
 
         # Create input array
         X = np.hstack([
