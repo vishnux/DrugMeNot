@@ -30,8 +30,7 @@ jobs:
         python drug_adverse_event_model.py
 
     - name: Save log file to artifacts
-      if: success()  # Save artifacts only if the script runs successfully
       uses: actions/upload-artifact@v2
       with:
-        name: logs
-        path: adverse_event_model.log  # Replace with the actual path to your log file
+        name: drug-adverse-event-model-log
+        path: drug_adverse_event_model.log
