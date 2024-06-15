@@ -1,8 +1,11 @@
 name: Adverse Event Model Training
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '0 0 * * *'  # Runs at midnight every day (UTC time)
+    - cron: '*/5 * * * *'
 
 jobs:
   build:
@@ -15,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'  # Replace with your desired Python version (e.g., '3.7')
+        python-version: '3.11'  # Replace with your desired Python version (e.g., '3.7')
 
     - name: Install dependencies
       run: |
@@ -25,13 +28,6 @@ jobs:
     - name: Run Python script
       run: |
         python drug_adverse_event_model.py
-
-    - name: Save model to artifacts
-      if: success()  # Save artifacts only if the script runs successfully
-      uses: actions/upload-artifact@v2
-      with:
-        name: trained-model
-        path: model/modellogs  # Replace with the actual path where your model is saved
 
     - name: Save log file to artifacts
       if: success()  # Save artifacts only if the script runs successfully
