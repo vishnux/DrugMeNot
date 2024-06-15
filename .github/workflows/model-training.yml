@@ -1,8 +1,11 @@
 name: Execute Model and Move Log
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '0 0 * * *'  # Runs at midnight (00:00 UTC) every day
+    - cron: '*/5 * * * *'y
 
 jobs:
   run-python-script:
