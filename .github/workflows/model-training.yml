@@ -40,4 +40,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: logs
-          path: log/adverse_event_model.log  # Adjust the path to match where your log file is moved
+          path: log/adverse_event_model.txt  # Adjust the path to match where your log file is moved
