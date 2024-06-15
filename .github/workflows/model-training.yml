@@ -27,10 +27,10 @@ jobs:
 
     - name: Run Python script
       run: |
-        python drug_adverse_event_model.py
+        python app.py
 
     - name: Save log file to artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: drug-adverse-event-model-log
-        path: drug_adverse_event_model.log
+        name: app-log
+        path: app.log
