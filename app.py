@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Define FastAPI endpoint URL
-api_url = "https://your-fastapi-app-url.com/predict/"  # Replace with your FastAPI endpoint URL
+api_url = "https://drug-adverse.streamlit.app/predict/"  # Replace with your FastAPI endpoint URL
 
 # Streamlit app
 st.title('Adverse Event Prediction')
