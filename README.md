@@ -1,4 +1,4 @@
-# DrugMeNot - Adverse Drug Event Prediction Model
+# DrugMeNot - Predicting High-Risk Adverse Drug Reactions
 
 This project aims to develop a machine learning model for predicting the seriousness of adverse events associated with drug usage based on patient information and drug characteristics. The model is trained on data obtained from the [FDA Adverse Event Reporting System](https://open.fda.gov/apis/drug/event/) API.
 
