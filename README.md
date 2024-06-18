@@ -13,11 +13,11 @@ This project aims to develop a machine learning model for predicting the serious
 
 ## Requirements
 
-Python 3.x
-pandas
-numpy
-scikit-learn
-requests
+- Python 3.x
+- pandas
+- numpy
+- scikit-learn
+- requests
 
 ## Usage
 
