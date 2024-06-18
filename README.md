@@ -45,7 +45,7 @@ Run the main script:
 python adverse_event_model.py
 ```
 
-The script will fetch data from the FDA FAERS API, preprocess the data, train the Random Forest Classifier model, and save the trained model to the models directory.
+The script will fetch data from the FDA FAERS API, preprocess the data and train the Random Forest Classifier model.
 Check the console output and the adverse_event_model.log file for the classification report and any log messages.
 
 ## Contributing
