@@ -4,11 +4,12 @@ This project aims to develop a machine learning model for predicting the serious
 
 ## Features
 
-Data Collection: The project fetches data from the FDA FAERS API, handling potential errors and rate limiting.
-Data Preprocessing: The data is preprocessed to handle missing values, normalize nested JSON columns, and encode categorical features using techniques like label encoding and one-hot encoding.
-Feature Engineering: Relevant features are extracted from the raw data, including patient age, sex, drug composition, drug indication, and reaction information.
-Model Training and Evaluation: The project trains a Random Forest Classifier model on the preprocessed data and evaluates its performance using classification metrics such as precision, recall, and F1-score.
-Logging: Comprehensive logging is implemented to track the progress and errors encountered during the execution of the project.
+- Data Collection: The project fetches data from the FDA FAERS API, handling potential errors and rate limiting.
+
+- Data Preprocessing: The data is preprocessed to handle missing values, normalize nested JSON columns, and encode categorical features using techniques like label encoding and one-hot encoding.
+- Feature Engineering: Relevant features are extracted from the raw data, including patient age, sex, drug composition, drug indication, and reaction information.
+- Model Training and Evaluation: The project trains a Random Forest Classifier model on the preprocessed data and evaluates its performance using classification metrics such as precision, recall, and F1-score.
+- Logging: Comprehensive logging is implemented to track the progress and errors encountered during the execution of the project.
 
 ## Requirements
 
