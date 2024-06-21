@@ -24,7 +24,7 @@ This project aims to develop a machine learning model for predicting the serious
 Clone the repository:
 
 ```
-git clone [https://github.com/your-username/adverse-event-prediction-model.git](https://github.com/vishnux/DrugMeNot.git)
+git clone https://github.com/vishnux/DrugMeNot.git
 ```
 
 Navigate to the project directory:
