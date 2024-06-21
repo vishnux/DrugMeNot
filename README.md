@@ -24,13 +24,13 @@ This project aims to develop a machine learning model for predicting the serious
 Clone the repository:
 
 ```
-git clone https://github.com/your-username/adverse-event-prediction-model.git
+git clone [https://github.com/your-username/adverse-event-prediction-model.git](https://github.com/vishnux/DrugMeNot.git)
 ```
 
 Navigate to the project directory:
 
 ```
-cd adverse-event-prediction-model
+cd DrugMeNot
 ```
 
 Install the required dependencies:
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 Run the main script:
 
 ```
-python adverse_event_model.py
+python drug_adverse_event_model.py
 ```
 
 The script will fetch data from the FDA FAERS API, preprocess the data and train the Random Forest Classifier model.
